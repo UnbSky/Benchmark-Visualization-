@@ -12,8 +12,28 @@
     const s = sourceOf(id);
     return s ? `<a href="${s.url}" target="_blank" rel="noopener">${s.org}</a>` : id;
   };
-  const orgFill = { Anthropic: "#c45c26", OpenAI: "#3d6b9e", Google: "#2f7a5d" };
-  const orgOrder = ["Anthropic", "OpenAI", "Google"];
+  const orgFill = {
+    Anthropic: "#c45c26",
+    OpenAI: "#3d6b9e",
+    Google: "#2f7a5d",
+    DeepSeek: "#3f6f8c",
+    Tencent: "#1a66d1",
+    Zhipu: "#4c51c8",
+    Moonshot: "#6b4c9a",
+    Alibaba: "#c2410c",
+    xAI: "#52525b",
+  };
+  const orgOrder = [
+    "Anthropic",
+    "OpenAI",
+    "Google",
+    "DeepSeek",
+    "Tencent",
+    "Zhipu",
+    "Moonshot",
+    "Alibaba",
+    "xAI",
+  ];
   const shortModel = (m) =>
     m.name
       .replace("Claude ", "")
@@ -30,6 +50,7 @@
   let cam = { x: 0, y: 0, k: 1 };
   let frame = { w: 960, h: 560 };
   let panBound = false;
+  let atlasLayout = null;
 
   const rows = D.benchmarks.flatMap((b) =>
     b.results.map((r) => ({ ...r, benchId: b.id, bench: b, model: modelOf(r.modelId) }))
@@ -78,8 +99,8 @@
   }
 
   function fitCam(w, h) {
-    const vw = Math.min(Math.max(w + 36, 980), 1280);
-    const vh = Math.min(Math.max(h + 16, 560), 860);
+    const vw = Math.min(Math.max(w + 28, 900), 1280);
+    const vh = Math.max(h + 20, 520);
     frame = { w: vw, h: vh };
     cam = { x: w < vw ? (w - vw) / 2 : 0, y: 0, k: 1 };
     applyCam();
@@ -223,6 +244,97 @@
     return seen.map((org) => ({ org, models: models.filter((m) => m.org === org) }));
   }
 
+  function mlinkEl(p, q, benchId, modelId) {
+    return `<path class="mlink" data-bench="${benchId}" data-model="${modelId}" d="M${p.x},${p.y + 18} C${p.x},${p.y + 48} ${q.x},${q.y - 36} ${q.x},${q.y - 12}" fill="none" stroke="#c45c26" stroke-width="1.4"/>`;
+  }
+
+  function selectedMlinkOpts() {
+    if (filter.model) return { modelId: filter.model };
+    if (filter.org) return { org: filter.org };
+    return {};
+  }
+
+  function paintMlinks(opts = {}) {
+    const g = document.getElementById("atlas-mlinks");
+    if (!g || !atlasLayout) return;
+    const { benchId, modelId, org } = opts;
+    if (!benchId && !modelId && !org) {
+      g.innerHTML = "";
+      return;
+    }
+    const { bp, mp, benches } = atlasLayout;
+    const out = [];
+    const seen = new Set();
+    benches.forEach((b) => {
+      if (benchId && b.id !== benchId) return;
+      const p = bp[b.id];
+      if (!p) return;
+      [...new Set(b.results.map((r) => r.modelId))].forEach((mid) => {
+        if (modelId && mid !== modelId) return;
+        if (org && modelOf(mid)?.org !== org) return;
+        const q = mp[mid];
+        if (!q) return;
+        const key = `${b.id}-${mid}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        out.push(mlinkEl(p, q, b.id, mid));
+      });
+    });
+    g.innerHTML = out.join("");
+  }
+
+  function placeModels(groups, startY, padX) {
+    const perRow = 8;
+    const mGapX = 104;
+    const mGapY = 56;
+    const clusterGap = 36;
+    const bigCut = 6;
+    const maxX = padX + perRow * mGapX;
+    const mp = {};
+    const labels = [];
+    let y = startY;
+    let maxModelX = padX;
+
+    const placeDedicated = (g) => {
+      labels.push({ org: g.org, x: padX, y: y + 12 });
+      y += 22;
+      g.models.forEach((m, i) => {
+        const col = i % perRow;
+        const row = Math.floor(i / perRow);
+        const x = padX + col * mGapX;
+        const my = y + row * mGapY;
+        mp[m.id] = { x, y: my };
+        maxModelX = Math.max(maxModelX, x);
+      });
+      y += Math.ceil(g.models.length / perRow) * mGapY + 10;
+    };
+
+    groups.filter((g) => g.models.length >= bigCut).forEach(placeDedicated);
+
+    const small = groups.filter((g) => g.models.length < bigCut);
+    if (small.length) {
+      let x = padX;
+      small.forEach((g) => {
+        const w = Math.max(g.models.length, 1) * mGapX;
+        if (x > padX && x + w > maxX + 8) {
+          x = padX;
+          y += mGapY + 28;
+        }
+        labels.push({ org: g.org, x: x, y: y + 12 });
+        const my = y + 26;
+        g.models.forEach((m, i) => {
+          const mx = x + i * mGapX;
+          mp[m.id] = { x: mx, y: my };
+          maxModelX = Math.max(maxModelX, mx);
+        });
+        x += w + clusterGap;
+      });
+      y += mGapY + 28;
+    }
+
+    return { mp, labels, bottom: y, maxModelX };
+  }
+
   function drawAtlas() {
     $("tip").hidden = true;
     renderHlFilters();
@@ -233,79 +345,75 @@
       if (primary) buckets[primary].push(b);
     });
 
-    const nCol = Math.max(domains.length, 1);
-    const colW = nCol <= 3 ? 280 : 268;
-    const padX = 96;
-    const domainY = 48;
-    const benchY0 = 148;
-    const benchGap = 96;
-    const zig = 38;
-    const maxRows = Math.max(1, ...domains.map((d) => buckets[d.id].length));
+    const COLS = 4;
+    const CELL_W = 200;
+    const CELL_H = 82;
+    const STAGGER = 36;
+    const padX = 48;
+    const domainHead = 38;
+    const sectionGap = 6;
     const groups = groupedOrgs(models);
-    const perRow = nCol <= 3 ? 7 : 8;
-    const mGapX = 112;
-    const mGapY = 54;
-    const modelY0 = benchY0 + maxRows * benchGap + 36;
 
-    const dx = {};
-    const modelSpan = padX + Math.max(Math.min(models.length, perRow) - 1, 0) * mGapX;
-    domains.forEach((d, i) => {
-      dx[d.id] = nCol <= 2
-        ? (modelSpan / (nCol + 1)) * (i + 1)
-        : padX + i * colW;
-    });
     const bp = {};
-    domains.forEach((d) => {
-      buckets[d.id].forEach((b, j) => {
-        bp[b.id] = { x: dx[d.id] + (j % 2 === 0 ? -zig : zig), y: benchY0 + j * benchGap };
+    const dx = {};
+    const dy = {};
+    const placeDomain = (d, left, top, cols) => {
+      const list = buckets[d.id] || [];
+      dy[d.id] = top;
+      dx[d.id] = left + (cols * CELL_W) / 2;
+      const benchY0 = top + domainHead;
+      list.forEach((b, i) => {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        bp[b.id] = {
+          x: left + col * CELL_W + CELL_W / 2 + (row % 2 === 1 ? STAGGER : 0),
+          y: benchY0 + row * CELL_H,
+        };
       });
-    });
-    const mp = {};
-    let my = modelY0;
-    let maxModelX = padX;
-    groups.forEach((g) => {
-      g.labelY = my;
-      my += 26;
-      g.models.forEach((m, i) => {
-        const col = i % perRow;
-        const row = Math.floor(i / perRow);
-        const x = padX + col * mGapX;
-        const y = my + row * mGapY;
-        mp[m.id] = { x, y };
-        maxModelX = Math.max(maxModelX, x);
-      });
-      my += Math.ceil(g.models.length / perRow) * mGapY + 8;
-    });
+      return domainHead + Math.max(1, Math.ceil(Math.max(list.length, 1) / cols)) * CELL_H;
+    };
 
-    const contentW = Math.max(padX + nCol * colW, maxModelX + 80, 720);
-    const contentH = Math.max(my + 24, 420);
+    let y = 28;
+    const large = domains.filter((d) => (buckets[d.id] || []).length >= 3);
+    const small = domains.filter((d) => (buckets[d.id] || []).length < 3);
+    large.forEach((d) => {
+      y += placeDomain(d, padX, y, COLS) + sectionGap;
+    });
+    if (small.length) {
+      let x = padX;
+      let rowH = 0;
+      const rowLimit = padX + COLS * CELL_W + STAGGER;
+      small.forEach((d) => {
+        const n = Math.max((buckets[d.id] || []).length, 1);
+        const cols = Math.min(2, n);
+        const w = cols * CELL_W + 16;
+        if (x > padX && x + w > rowLimit) {
+          y += rowH + sectionGap;
+          x = padX;
+          rowH = 0;
+        }
+        rowH = Math.max(rowH, placeDomain(d, x, y, cols));
+        x += w + 28;
+      });
+      y += rowH + sectionGap;
+    }
+
+    const placed = placeModels(groups, y + 6, padX);
+    const mp = placed.mp;
+    const contentW = Math.max(padX + COLS * CELL_W + STAGGER + 40, placed.maxModelX + 80, 720);
+    const contentH = Math.max(placed.bottom + 20, 420);
 
     const domainLinks = benches.flatMap((b) =>
       b.domainIds.map((id) => {
         if (!dx[id] || !bp[b.id]) return "";
         const p = bp[b.id];
-        return `<path d="M${dx[id]},${domainY + 16} C${dx[id]},${domainY + 70} ${p.x},${p.y - 56} ${p.x},${p.y - 18}" fill="none" stroke="#b7d0c4" stroke-width="1.6"/>`;
+        return `<path d="M${dx[id]},${dy[id] + 14} C${dx[id]},${dy[id] + 40} ${p.x},${p.y - 44} ${p.x},${p.y - 18}" fill="none" stroke="#b7d0c4" stroke-width="1.6"/>`;
       })
     );
 
-    const modelLinks = [];
-    const seen = new Set();
-    benches.forEach((b) => {
-      const p = bp[b.id];
-      if (!p) return;
-      [...new Set(b.results.map((r) => r.modelId))].forEach((mid) => {
-        const q = mp[mid];
-        if (!q) return;
-        const key = `${b.id}-${mid}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        modelLinks.push(`<path class="mlink" data-bench="${b.id}" data-model="${mid}" d="M${p.x},${p.y + 18} C${p.x},${p.y + 52} ${q.x},${q.y - 40} ${q.x},${q.y - 12}" fill="none" stroke="#c45c26" stroke-width="1.4"/>`);
-      });
-    });
-
     const domainNodes = domains.map((d) => {
       const w = Math.max(92, d.label.length * 14 + 22);
-      return `<g class="node" data-kind="domain" data-id="${d.id}" transform="translate(${dx[d.id]},${domainY})">
+      return `<g class="node" data-kind="domain" data-id="${d.id}" transform="translate(${dx[d.id]},${dy[d.id]})">
         <rect x="${-w / 2}" y="-14" width="${w}" height="28" rx="14" fill="#2f7a5d"></rect>
         <text y="5" text-anchor="middle" fill="#fff" font-size="13">${esc(d.label)}</text>
       </g>`;
@@ -322,12 +430,13 @@
       </g>`;
     });
 
-    const orgLabels = groups.map((g) =>
-      `<text x="${padX - 8}" y="${g.labelY + 12}" fill="#8a887f" font-size="11" letter-spacing="0.08em">${esc(g.org.toUpperCase())}</text>`
+    const orgLabels = placed.labels.map((g) =>
+      `<text x="${g.x}" y="${g.y}" fill="#8a887f" font-size="11" letter-spacing="0.08em">${esc(g.org.toUpperCase())}</text>`
     );
 
     const modelNodes = models.map((m) => {
       const p = mp[m.id];
+      if (!p) return "";
       return `<g class="node" data-kind="model" data-id="${m.id}" transform="translate(${p.x},${p.y})">
         <rect x="-10" y="-10" width="20" height="20" rx="4" fill="${orgFill[m.org] || "#888"}"></rect>
         <text y="28" text-anchor="middle" fill="#1f1e1b" font-size="12">${esc(shortModel(m))}</text>
@@ -338,7 +447,9 @@
       ? `<text x="${contentW / 2}" y="200" text-anchor="middle" fill="#5e5c56" font-size="16">没有匹配的节点</text>`
       : "";
 
-    $("atlas").innerHTML = `${domainLinks.join("")}${modelLinks.join("")}${domainNodes.join("")}${benchNodes.join("")}${orgLabels.join("")}${modelNodes.join("")}${empty}`;
+    $("atlas").innerHTML = `${domainLinks.join("")}<g id="atlas-mlinks"></g>${domainNodes.join("")}${benchNodes.join("")}${orgLabels.join("")}${modelNodes.join("")}${empty}`;
+    atlasLayout = { bp, mp, benches, models };
+    paintMlinks(selectedMlinkOpts());
     fitCam(contentW, contentH);
     bindAtlasEvents();
     bindPanZoom();
@@ -365,11 +476,9 @@
       if (kind === "bench") openChart(id);
     };
     const setEdgeHover = (kind, id) => {
-      svg.querySelectorAll(".mlink").forEach((el) => {
-        const on = (kind === "bench" && el.dataset.bench === id)
-          || (kind === "model" && el.dataset.model === id);
-        el.classList.toggle("is-on", on);
-      });
+      if (kind === "bench") paintMlinks({ benchId: id });
+      else if (kind === "model") paintMlinks({ modelId: id });
+      else paintMlinks(selectedMlinkOpts());
     };
     svg.onmouseover = (e) => {
       const g = e.target.closest(".node");

@@ -107,7 +107,7 @@ select.pick {
 .atlas-box { position: relative; }
 #atlas {
   width: 100%;
-  height: 700px;
+  height: 760px;
   display: block;
   overflow: hidden;
   background: var(--card);
@@ -153,8 +153,7 @@ select.pick {
 .tip b { display: block; color: var(--accent); font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
 .tip .cta { margin: 10px 0 0; color: var(--ink); }
 .tip .cta strong { font-weight: 700; color: var(--ink); letter-spacing: 0; text-transform: none; font-size: 15px; }
-.mlink { opacity: 0.1; pointer-events: none; }
-.mlink.is-on { opacity: 1; }
+.mlink { opacity: 1; pointer-events: none; }
 .metric-box {
   background: var(--card);
   border: 1px solid var(--line);
