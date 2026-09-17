@@ -7,18 +7,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=26" />
+  <link rel="stylesheet" href="css/style.css?v=35" />
 </head>
 <body>
   <header class="top">
     <h1>Benchmark Atlas</h1>
-    <nav class="tabs" role="tablist">
-      <button class="tab is-on" data-view="atlas">图谱</button>
-      <button class="tab" data-view="chart">图表</button>
-    </nav>
+    <div class="top-right">
+      <div class="themes" role="group" aria-label="配色">
+        <button type="button" class="theme-dot" data-theme-id="ink" title="黑色" aria-label="黑色"></button>
+        <button type="button" class="theme-dot" data-theme-id="slate" title="蓝色" aria-label="蓝色"></button>
+        <button type="button" class="theme-dot is-on" data-theme-id="paper" title="白色" aria-label="白色"></button>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab is-on" data-view="atlas">图谱</button>
+        <button class="tab" data-view="chart">图表</button>
+      </nav>
+    </div>
   </header>
 
-  <p class="howto" id="howto">图谱：类别、数据集、模型在同一张图。默认不画数据集–模型连线；悬停或选中节点才显示对应连线。上方按领域或机构筛选，点模型可只看相关数据集。悬停数据集看说明并点进去打开图表。</p>
+  <p class="howto" id="howto">图谱：悬停数据集看各模型分数与前三名；悬停模型看它在各数据集上的成绩。点数据集打开图表。</p>
 
   <section id="view-atlas" class="view is-on">
     <div class="stats" id="stats"></div>
@@ -79,7 +86,7 @@
 
   <button type="button" id="back-atlas" class="fab" hidden>返回图谱</button>
 
-  <script src="data/benchmarks.js?v=26"></script>
-  <script src="js/app.js?v=26"></script>
+  <script src="data/benchmarks.js?v=35"></script>
+  <script src="js/app.js?v=35"></script>
 </body>
 </html>

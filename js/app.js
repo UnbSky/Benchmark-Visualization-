@@ -12,6 +12,39 @@
     const s = sourceOf(id);
     return s ? `<a href="${s.url}" target="_blank" rel="noopener">${s.org}</a>` : id;
   };
+  const locusOf = (r) => {
+    if (!r) return "";
+    if (r.locus) return String(r.locus).trim();
+    const t = String(r.notes || "");
+    const found = [];
+    const add = (re) => {
+      const m = t.match(re);
+      if (m) found.push(m[0].replace(/\s+/g, " ").trim());
+    };
+    add(/Table\s+[\dA-Za-z.]+/i);
+    add(/Fig(?:ure)?\.?\s*\d+[A-Za-z]?/i);
+    add(/图\s*\d+[A-Za-z]?/);
+    add(/表\s*\d[\dA-Za-z.]*/);
+    add(/§\s*[\d.]+/);
+    const uniq = [...new Set(found)];
+    if (uniq.length) return uniq.slice(0, 2).join(" · ");
+    const named = t.match(/([A-Za-z][A-Za-z0-9 ._-]{0,18}表)/);
+    if (named) return named[1].trim();
+    if (/官方榜/.test(t)) return "官方榜";
+    return "";
+  };
+  const citeLine = (r, max = 36) => {
+    if (!r) return "";
+    const s = sourceOf(r.sourceId);
+    const loc = locusOf(r);
+    const org = s?.org || r.sourceId || "";
+    const line = loc ? `${org} · ${loc}` : org;
+    return line.length > max ? `${line.slice(0, max - 1)}…` : line;
+  };
+  const srcCite = (r) => {
+    const loc = locusOf(r);
+    return loc ? `${srcLink(r.sourceId)}<span class="cite">${esc(loc)}</span>` : srcLink(r.sourceId);
+  };
   const orgFill = {
     Anthropic: "#c45c26",
     OpenAI: "#3d6b9e",
@@ -35,16 +68,17 @@
     "xAI",
   ];
   const shortModel = (m) =>
-    m.name
+    (m?.name || "")
       .replace("Claude ", "")
       .replace(" Thinking", " Think")
       .replace("OpenAI ", "")
       .replace(" (Oct 2024)", " Oct")
       .replace(" (Jun 2024)", " Jun")
-      .replace(" (Operator)", "");
+      .replace(" (Operator)", "")
+      .replace("DeepSeek-", "DS-");
   const barPalette = ["#c45c26", "#3d6b9e", "#2f7a5d", "#6b4c9a", "#c2410c", "#1a66d1", "#4c51c8", "#52525b"];
   const HOWTO = {
-    atlas: "图谱：类别、数据集、模型在同一张图。默认不画数据集–模型连线；悬停或选中节点才显示对应连线。上方按领域或机构筛选，点模型可只看相关数据集。悬停数据集看说明并点进去打开图表。",
+    atlas: "图谱：悬停数据集看各模型分数与前三名；悬停模型看它在各数据集上的成绩。点数据集打开图表。",
     single: "图表：下拉切换领域和数据集。右下角「返回图谱」随时回到图谱。要公平对比多个模型，切到「交集对比」。",
     intersect: "交集对比：勾选至少 2 个模型。只要某数据集在其中 ≥2 个模型上有分，就会进入对比；缺成绩显示为 —。同一数据集取该模型最高分。点表中数据集名可看单集详情。",
   };
@@ -168,6 +202,7 @@
     document.querySelectorAll("[data-view]").forEach((b) => b.classList.toggle("is-on", b.dataset.view === view));
     document.querySelectorAll(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${view}`));
     $("back-atlas").hidden = view !== "chart";
+    $("tip").hidden = true;
     setHowto();
     if (view === "chart") renderChart();
     else drawAtlas();
@@ -277,8 +312,91 @@
     return seen.map((org) => ({ org, models: models.filter((m) => m.org === org) }));
   }
 
+  const RANK = ["var(--rank-1)", "var(--rank-2)", "var(--rank-3)"];
+
+  function rankedForBench(b) {
+    const by = {};
+    b.results.forEach((r) => {
+      if (!by[r.modelId] || r.score > by[r.modelId].score) by[r.modelId] = r;
+    });
+    return Object.values(by).sort((a, c) => c.score - a.score);
+  }
+
+  function scoresForModel(modelId) {
+    return D.benchmarks.map((b) => {
+      const mine = b.results.filter((r) => r.modelId === modelId);
+      if (!mine.length) return null;
+      const r = mine.reduce((a, x) => (x.score > a.score ? x : a));
+      return { bench: b, result: r };
+    }).filter(Boolean).sort((a, c) => c.result.score - a.result.score);
+  }
+
+  function tipBar(score) {
+    return `<span class="tip-bar" aria-hidden="true"><i style="width:${Math.max(score, 1)}%"></i></span>`;
+  }
+
+  function tipBenchTable(ranked, limit = 8) {
+    const shown = ranked.slice(0, limit);
+    const rows = shown.map((r, i) => {
+      const m = modelOf(r.modelId);
+      const rank = i < 3 ? `<i class="r${i + 1}">${i + 1}</i>` : "";
+      return `<tr>
+        <td><span class="tip-name">${rank}${esc(shortModel(m))}</span></td>
+        <td class="tip-score">${tipBar(r.score)}${fmt(r.score)}</td>
+      </tr>`;
+    }).join("");
+    const more = ranked.length > shown.length
+      ? `<p class="tip-more">其余 ${ranked.length - shown.length} 个模型分数已标在图谱上</p>`
+      : "";
+    return `<table class="tip-table">
+      <thead><tr><th>模型</th><th>分数</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>${more}`;
+  }
+
+  function tipModelTable(entries) {
+    const rows = entries.map(({ bench, result }) => `<tr>
+      <td>${esc(bench.short)}</td>
+      <td class="tip-metric">${esc(bench.metric)}</td>
+      <td class="tip-score">${tipBar(result.score)}${fmt(result.score)}</td>
+    </tr>`).join("");
+    return `<table class="tip-table">
+      <thead><tr><th>数据集</th><th>指标</th><th>分数</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  function paintBenchHover(benchId) {
+    const g = document.getElementById("atlas-hover");
+    if (!g || !atlasLayout) return;
+    if (!benchId) {
+      g.innerHTML = "";
+      return;
+    }
+    const b = benchOf(benchId);
+    if (!b) {
+      g.innerHTML = "";
+      return;
+    }
+    const ranked = rankedForBench(b);
+    const { mp } = atlasLayout;
+    const out = [];
+    ranked.forEach((r, i) => {
+      const p = mp[r.modelId];
+      if (!p) return;
+      out.push(`<text x="${p.x}" y="${p.y + 42}" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" fill="var(--muted)">${fmt(r.score)}</text>`);
+      if (i < 3) {
+        out.push(`<g transform="translate(${p.x + 13},${p.y - 13})">
+          <circle r="8.5" fill="${RANK[i]}" stroke="var(--card)" stroke-width="1.5"></circle>
+          <text y="4" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">${i + 1}</text>
+        </g>`);
+      }
+    });
+    g.innerHTML = out.join("");
+  }
+
   function mlinkEl(p, q, benchId, modelId) {
-    return `<path class="mlink" data-bench="${benchId}" data-model="${modelId}" d="M${p.x},${p.y + 18} C${p.x},${p.y + 48} ${q.x},${q.y - 36} ${q.x},${q.y - 12}" fill="none" stroke="#c45c26" stroke-width="1.4"/>`;
+    return `<path class="mlink" data-bench="${benchId}" data-model="${modelId}" d="M${p.x},${p.y + 18} C${p.x},${p.y + 48} ${q.x},${q.y - 36} ${q.x},${q.y - 12}" fill="none" stroke="var(--accent)" stroke-width="1.4"/>`;
   }
 
   function selectedMlinkOpts() {
@@ -317,10 +435,10 @@
   }
 
   function placeModels(groups, startY, padX) {
-    const perRow = 8;
-    const mGapX = 104;
-    const mGapY = 56;
-    const clusterGap = 36;
+    const perRow = 7;
+    const mGapX = 136;
+    const mGapY = 86;
+    const clusterGap = 48;
     const bigCut = 6;
     const maxX = padX + perRow * mGapX;
     const mp = {};
@@ -380,7 +498,7 @@
 
     const COLS = 4;
     const CELL_W = 200;
-    const CELL_H = 82;
+    const CELL_H = 96;
     const STAGGER = 36;
     const padX = 48;
     const domainHead = 38;
@@ -440,14 +558,14 @@
       b.domainIds.map((id) => {
         if (!dx[id] || !bp[b.id]) return "";
         const p = bp[b.id];
-        return `<path d="M${dx[id]},${dy[id] + 14} C${dx[id]},${dy[id] + 40} ${p.x},${p.y - 44} ${p.x},${p.y - 18}" fill="none" stroke="#b7d0c4" stroke-width="1.6"/>`;
+        return `<path d="M${dx[id]},${dy[id] + 14} C${dx[id]},${dy[id] + 40} ${p.x},${p.y - 44} ${p.x},${p.y - 18}" fill="none" stroke="var(--link-domain)" stroke-width="1.6"/>`;
       })
     );
 
     const domainNodes = domains.map((d) => {
       const w = Math.max(92, d.label.length * 14 + 22);
       return `<g class="node" data-kind="domain" data-id="${d.id}" transform="translate(${dx[d.id]},${dy[d.id]})">
-        <rect x="${-w / 2}" y="-14" width="${w}" height="28" rx="14" fill="#2f7a5d"></rect>
+        <rect x="${-w / 2}" y="-14" width="${w}" height="28" rx="14" fill="var(--node-cat)"></rect>
         <text y="5" text-anchor="middle" fill="#fff" font-size="13">${esc(d.label)}</text>
       </g>`;
     });
@@ -456,15 +574,19 @@
       const p = bp[b.id];
       const top = bestOf(b);
       const m = modelOf(top.modelId);
+      const focused = !!(filter.model || filter.org);
+      const line2 = focused ? `${b.metric} ${fmt(top.score)}` : b.metric;
+      const line3 = focused ? citeLine(top, 28) : `${shortModel(m)} ${fmt(top.score)}`;
       return `<g class="node" data-kind="bench" data-id="${b.id}" transform="translate(${p.x},${p.y})">
-        <circle r="17" fill="#c45c26"></circle>
-        <text y="36" text-anchor="middle" fill="#1f1e1b" font-size="13">${esc(b.short)}</text>
-        <text y="54" text-anchor="middle" fill="#5e5c56" font-size="11">${esc(shortModel(m))} ${fmt(top.score)}</text>
+        <circle r="17" fill="var(--node-bench)" stroke="var(--node-bench-stroke)" stroke-width="1.4"></circle>
+        <text y="34" text-anchor="middle" fill="var(--ink)" font-size="13">${esc(b.short)}</text>
+        <text y="50" text-anchor="middle" fill="var(--muted)" font-size="11">${esc(line2)}</text>
+        <text y="66" text-anchor="middle" fill="var(--muted)" font-size="10">${esc(line3)}</text>
       </g>`;
     });
 
     const orgLabels = placed.labels.map((g) =>
-      `<text x="${g.x}" y="${g.y}" fill="#8a887f" font-size="11" letter-spacing="0.08em">${esc(g.org.toUpperCase())}</text>`
+      `<text x="${g.x}" y="${g.y}" fill="var(--muted)" font-size="11" letter-spacing="0.08em">${esc(g.org.toUpperCase())}</text>`
     );
 
     const modelNodes = models.map((m) => {
@@ -472,15 +594,15 @@
       if (!p) return "";
       return `<g class="node" data-kind="model" data-id="${m.id}" transform="translate(${p.x},${p.y})">
         <rect x="-10" y="-10" width="20" height="20" rx="4" fill="${orgFill[m.org] || "#888"}"></rect>
-        <text y="28" text-anchor="middle" fill="#1f1e1b" font-size="12">${esc(shortModel(m))}</text>
+        <text y="28" text-anchor="middle" fill="var(--ink)" font-size="12">${esc(shortModel(m))}</text>
       </g>`;
     });
 
     const empty = !benches.length
-      ? `<text x="${contentW / 2}" y="200" text-anchor="middle" fill="#5e5c56" font-size="16">没有匹配的节点</text>`
+      ? `<text x="${contentW / 2}" y="200" text-anchor="middle" fill="var(--muted)" font-size="16">没有匹配的节点</text>`
       : "";
 
-    $("atlas").innerHTML = `${domainLinks.join("")}<g id="atlas-mlinks"></g>${domainNodes.join("")}${benchNodes.join("")}${orgLabels.join("")}${modelNodes.join("")}${empty}`;
+    $("atlas").innerHTML = `${domainLinks.join("")}<g id="atlas-mlinks"></g>${domainNodes.join("")}${benchNodes.join("")}${orgLabels.join("")}${modelNodes.join("")}<g id="atlas-hover"></g>${empty}`;
     atlasLayout = { bp, mp, benches, models };
     paintMlinks(selectedMlinkOpts());
     fitCam(contentW, contentH);
@@ -509,9 +631,16 @@
       if (kind === "bench") openChart(id);
     };
     const setEdgeHover = (kind, id) => {
-      if (kind === "bench") paintMlinks({ benchId: id });
-      else if (kind === "model") paintMlinks({ modelId: id });
-      else paintMlinks(selectedMlinkOpts());
+      if (kind === "bench") {
+        paintMlinks({ benchId: id });
+        paintBenchHover(id);
+      } else if (kind === "model") {
+        paintMlinks({ modelId: id });
+        paintBenchHover(null);
+      } else {
+        paintMlinks(selectedMlinkOpts());
+        paintBenchHover(null);
+      }
     };
     svg.onmouseover = (e) => {
       const g = e.target.closest(".node");
@@ -526,25 +655,28 @@
         setEdgeHover(null, null);
       } else if (kind === "bench") {
         const b = benchOf(id);
+        const ranked = rankedForBench(b);
         html = `<h3>${esc(b.name)}</h3>
-          <p><b>领域</b>${esc(b.domainNeed)}</p>
-          <p><b>评估</b>${esc(b.evaluates)}</p>
-          <p><b>为何重要</b>${esc(b.whyImportant)}</p>
-          <p><b>指标</b>${esc(b.metric)}。${esc(b.metricExplain)}</p>
+          <div class="tip-fields">
+            <p><b>领域</b>${esc(b.domainNeed)}</p>
+            <p><b>评估</b>${esc(b.evaluates)}</p>
+            <p class="span2"><b>为何重要</b>${esc(b.whyImportant)}</p>
+            <p class="span2"><b>指标</b>${esc(b.metric)}。${esc(b.metricExplain)}${b.nInstances ? `（${b.nInstances} 题）` : ""}</p>
+          </div>
+          ${tipBenchTable(ranked)}
           <p class="cta"><strong>点我查看详细表格数据</strong></p>`;
         setEdgeHover("bench", id);
       } else if (kind === "model") {
         const m = modelOf(id);
-        const mine = rows.filter((r) => r.modelId === id);
-        const best = [...mine].sort((a, b) => b.score - a.score)[0];
-        const n = new Set(mine.map((r) => r.benchId)).size;
+        const entries = scoresForModel(id);
         html = `<h3>${esc(m.name)}</h3>
           <p><b>机构</b>${esc(m.org)}</p>
-          <p>出现在 ${n} 个数据集。最高 ${esc(best.bench.short)} ${fmt(best.score)}。点击可筛选相关数据集。</p>`;
+          ${tipModelTable(entries)}`;
         setEdgeHover("model", id);
       }
       if (!html) return;
       tip.hidden = false;
+      tip.classList.toggle("is-wide", kind === "bench" || kind === "model");
       tip.innerHTML = html;
     };
     svg.onmousemove = (e) => {
@@ -672,12 +804,12 @@
       const h = Math.max(gap * 0.52, 10);
       const w = ((W - left - right) * r.score) / 100;
       const label = `${r.model.name}${r.subset ? " · " + r.subset : ""}`;
-      return `<text x="${left - 12}" y="${y + h * 0.78}" text-anchor="end" font-size="14" fill="#5e5c56">${label}</text>
-        <rect x="${left}" y="${y}" width="${w}" height="${h}" rx="4" fill="#c45c26" opacity="0.9"></rect>
-        <text x="${left + w + 8}" y="${y + h * 0.78}" font-size="14" font-family="IBM Plex Mono" fill="#2f7a5d">${fmt(r.score)}</text>`;
+      return `<text x="${left - 12}" y="${y + h * 0.78}" text-anchor="end" font-size="14" fill="var(--muted)">${label}</text>
+        <rect x="${left}" y="${y}" width="${w}" height="${h}" rx="4" fill="var(--accent)" opacity="0.9"></rect>
+        <text x="${left + w + 8}" y="${y + h * 0.78}" font-size="14" font-family="IBM Plex Mono" fill="var(--sage)">${fmt(r.score)}</text>`;
     }).join("");
     $("bars").setAttribute("viewBox", `0 0 960 ${H}`);
-    $("bars").innerHTML = bars || `<text x="480" y="70" text-anchor="middle" font-size="16" fill="#5e5c56">无数据</text>`;
+    $("bars").innerHTML = bars || `<text x="480" y="70" text-anchor="middle" font-size="16" fill="var(--muted)">无数据</text>`;
 
     $("score-body").innerHTML = list.map((r) => `<tr>
       <td>${r.model.name}<br><span class="muted">${r.model.org}</span></td>
@@ -685,7 +817,7 @@
       <td class="col-metric">${b.metric}${r.subset ? " · " + r.subset : ""}</td>
       <td class="score">${fmt(r.score)}</td>
       <td class="date">${r.date || "—"}</td>
-      <td>${srcLink(r.sourceId)}</td>
+      <td>${srcCite(r)}</td>
     </tr>`).join("");
   }
 
@@ -852,12 +984,12 @@
         const h = 14;
         const w = Math.max((innerW * s.row.score) / 100, 0);
         const best = s.row.score === cell.max;
-        return `<text x="${left - 10}" y="${y + 12}" text-anchor="end" font-size="12" fill="#5e5c56">${esc(shortModel(modelOf(s.id)))}</text>
+        return `<text x="${left - 10}" y="${y + 12}" text-anchor="end" font-size="12" fill="var(--muted)">${esc(shortModel(modelOf(s.id)))}</text>
           <rect x="${left}" y="${y}" width="${w}" height="${h}" rx="3" fill="${colors[s.id]}" opacity="${best ? 0.95 : 0.72}"></rect>
-          <text x="${left + w + 8}" y="${y + 12}" font-size="12" font-family="IBM Plex Mono" fill="${best ? "#2f7a5d" : "#5e5c56"}">${fmt(s.row.score)}</text>`;
+          <text x="${left + w + 8}" y="${y + 12}" font-size="12" font-family="IBM Plex Mono" fill="${best ? "var(--sage)" : "var(--muted)"}">${fmt(s.row.score)}</text>`;
       }).join("");
       yCursor += headH + cell.present.length * rowH + groupGap;
-      return `<text x="${left}" y="${y0 + 14}" font-size="13" fill="#1f1e1b"><tspan font-weight="600">${esc(cell.bench.short)}</tspan><tspan fill="#8a887f"> · ${esc(cell.bench.metric)}</tspan></text>
+      return `<text x="${left}" y="${y0 + 14}" font-size="13" fill="var(--ink)"><tspan font-weight="600">${esc(cell.bench.short)}</tspan><tspan fill="var(--muted)"> · ${esc(cell.bench.metric)}</tspan></text>
         ${bars}`;
     }).join("");
     const H = Math.max(160, yCursor + bot);
@@ -890,6 +1022,24 @@
       openChart(cell.dataset.open);
     };
   }
+
+  const THEMES = ["paper", "slate", "ink"];
+  const THEME_ALIAS = { light: "paper", mist: "slate", dark: "ink" };
+  const applyTheme = (id) => {
+    const mapped = THEME_ALIAS[id] || id;
+    const next = THEMES.includes(mapped) ? mapped : "paper";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("atlas-theme", next); } catch (_) {}
+    document.querySelectorAll("[data-theme-id]").forEach((b) =>
+      b.classList.toggle("is-on", b.dataset.themeId === next)
+    );
+  };
+  document.querySelectorAll("[data-theme-id]").forEach((b) => {
+    b.onclick = () => applyTheme(b.dataset.themeId);
+  });
+  let savedTheme = "paper";
+  try { savedTheme = localStorage.getItem("atlas-theme") || "paper"; } catch (_) {}
+  applyTheme(savedTheme);
 
   renderStats();
   drawAtlas();

@@ -9,7 +9,8 @@
  *   benchmarks  数据集（含 metric / metricExplain）
  *   sources     来源（前端会展示 url）
  *
- * 成绩字段：modelId, harness, score, date, sourceId, notes
+ * 成绩字段：modelId, harness, score, date, sourceId, locus, notes
+ * locus：表 / 图 / 节，如 Table 3、图 2、§8.2；图表「来源」列只显示链接 + locus
  */
 window.BENCHMARK_DATA = {
   meta: {
@@ -207,6 +208,13 @@ window.BENCHMARK_DATA = {
       url: "https://openai.com/index/browsecomp",
     },
     {
+      id: "browsecomp-paper",
+      title: "BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents",
+      org: "Wei et al., OpenAI",
+      date: "2025-04",
+      url: "https://arxiv.org/abs/2504.12516",
+    },
+    {
       id: "mcp-atlas-paper",
       title: "MCP-Atlas: A Large-Scale Benchmark for Tool-Use Competency with Real MCP Servers",
       org: "Scale AI",
@@ -363,7 +371,7 @@ window.BENCHMARK_DATA = {
     {
       id: "ale-snorkel",
       title: "Agents' Last Exam leaderboard",
-      org: "Snorkel AI / ALE team",
+      org: "Snorkel AI",
       date: "ongoing",
       url: "https://snorkel.ai/leaderboard/agents-last-exam/",
     },
@@ -429,6 +437,7 @@ window.BENCHMARK_DATA = {
           score: 95.5,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "Table 8.1.A / §8.2",
           notes: "Fable 5 / Mythos 5 System Card Table 8.1.A 与 §8.2：Verified 500 题。同表 Fable 5 为 95.0%。",
         },
         {
@@ -437,6 +446,7 @@ window.BENCHMARK_DATA = {
           score: 95.0,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "Table 8.1.A / §8.2",
           notes: "§8.2：Fable 5 95%。分数含生产 safeguards。",
         },
         {
@@ -445,6 +455,7 @@ window.BENCHMARK_DATA = {
           score: 93.9,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "Table 8.1.A",
           notes: "Table 8.1.A Mythos Preview 93.9%。",
         },
         {
@@ -453,6 +464,7 @@ window.BENCHMARK_DATA = {
           score: 88.6,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "Table 8.1.A",
           notes: "Table 8.1.A Opus 4.8 88.6%。",
         },
         {
@@ -461,6 +473,7 @@ window.BENCHMARK_DATA = {
           score: 80.6,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "Table 8.1.A",
           notes: "Table 8.1.A：Competitor figures drawn from developers' published system cards or leaderboards。",
         },
         {
@@ -469,6 +482,7 @@ window.BENCHMARK_DATA = {
           score: 80.9,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.4.A",
           notes: "System Card Table 2.4.A；5 trial 平均；200k 上下文。64k thinking 为 80.6%。",
         },
         {
@@ -477,6 +491,7 @@ window.BENCHMARK_DATA = {
           score: 80.0,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Coding",
           notes: "Introducing GPT-5.2：GPT-5.2 Thinking 80%；同文 GPT-5.1 Thinking 76.3%。",
         },
         {
@@ -485,6 +500,7 @@ window.BENCHMARK_DATA = {
           score: 77.2,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.3.A 脚注 4",
           notes: "Opus 4.5 System Card Table 2.3.A 脚注 4。",
         },
         {
@@ -493,6 +509,7 @@ window.BENCHMARK_DATA = {
           score: 76.3,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Coding",
           notes: "与 GPT-5.2 同表对照。Anthropic 表中 GPT-5.1 亦为 76.3%，Codex-Max 为 77.9%。",
         },
         {
@@ -501,6 +518,7 @@ window.BENCHMARK_DATA = {
           score: 72.7,
           date: "2025-05",
           sourceId: "anthropic-claude4",
+          locus: "§ Claude 4",
           notes: "Introducing Claude 4。高计算重采样为 80.2%。OpenAI 对照分母为 477 题。",
         },
         {
@@ -509,6 +527,7 @@ window.BENCHMARK_DATA = {
           score: 72.5,
           date: "2025-05",
           sourceId: "anthropic-claude4",
+          locus: "§ Claude 4",
           notes: "Introducing Claude 4。高计算为 79.4%。",
         },
         {
@@ -517,6 +536,7 @@ window.BENCHMARK_DATA = {
           score: 74.9,
           date: "2025-08",
           sourceId: "openai-gpt5",
+          locus: "Evaluations",
           notes: "Introducing GPT-5：74.9%；同文 o3 为 69.1%。相对 o3 high 少 22% output tokens、45% tool calls。",
         },
         {
@@ -525,6 +545,7 @@ window.BENCHMARK_DATA = {
           score: 49.0,
           date: "2024-10",
           sourceId: "anthropic-swe-sonnet",
+          locus: "Results",
           notes: "Anthropic 博客：新版 3.5 Sonnet 49%，旧版 33%，当时 SOTA 45%。",
         },
       ],
@@ -553,6 +574,7 @@ window.BENCHMARK_DATA = {
           score: 62.9,
           date: "2026",
           sourceId: "tbench-paper",
+          locus: "Table 2",
           notes: "Merrill et al. Table 2：62.9% ± 3.0%。同模型 + Terminus 2 仅 54.0%。",
         },
         {
@@ -561,6 +583,7 @@ window.BENCHMARK_DATA = {
           score: 59.3,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "§2.5",
           notes: "System Card §2.5：59.27% ± 1.34%（1335 trials）。64k thinking 为 57.8%。",
         },
         {
@@ -569,6 +592,7 @@ window.BENCHMARK_DATA = {
           score: 57.8,
           date: "2026",
           sourceId: "tbench-paper",
+          locus: "Table 2",
           notes: "Table 2：57.8% ± 2.5%。Claude Code 52.1%，OpenHands 51.9%。",
         },
         {
@@ -577,6 +601,7 @@ window.BENCHMARK_DATA = {
           score: 56.9,
           date: "2026",
           sourceId: "tbench-paper",
+          locus: "Table 2",
           notes: "Table 2：56.9% ± 2.5%。",
         },
         {
@@ -585,6 +610,7 @@ window.BENCHMARK_DATA = {
           score: 50.0,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.3.A",
           notes: "Table 2.3.A。论文 Table 2 中 Terminus 2 为 42.8%，说明配置/资源敏感。",
         },
         {
@@ -593,6 +619,7 @@ window.BENCHMARK_DATA = {
           score: 47.6,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.3.A",
           notes: "Anthropic 表：GPT-5.1 47.6%；w/ Codex-Max 58.1%（不同 harness，Anthropic 未能复现）。",
         },
         {
@@ -601,6 +628,7 @@ window.BENCHMARK_DATA = {
           score: 46.5,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.3.A",
           notes: "Table 2.3.A。论文 Terminus 2 为 38.0%。",
         },
       ],
@@ -630,6 +658,7 @@ window.BENCHMARK_DATA = {
           subset: "telecom",
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "Introducing GPT-5.2：Telecom 98.7%，Retail 82.0%。OpenAI 未报 Airline（认为标注质量不足）。",
         },
         {
@@ -639,6 +668,7 @@ window.BENCHMARK_DATA = {
           subset: "telecom",
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.8.A",
           notes: "Table 2.8.A Telecom。Retail 88.9%；Airline 原版 70.1% / 修正版 87.8%。",
         },
         {
@@ -648,6 +678,7 @@ window.BENCHMARK_DATA = {
           subset: "telecom",
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.8.A",
           notes: "Telecom 98%；Retail 86.2%。",
         },
         {
@@ -657,6 +688,7 @@ window.BENCHMARK_DATA = {
           subset: "telecom",
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "Telecom 95.6%，Retail 77.9%。",
         },
         {
@@ -666,6 +698,7 @@ window.BENCHMARK_DATA = {
           subset: "retail",
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.8.A",
           notes: "Table 2.8.A Retail。",
         },
         {
@@ -675,6 +708,7 @@ window.BENCHMARK_DATA = {
           subset: "retail",
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.8.A",
           notes: "Table 2.8.A Retail。",
         },
         {
@@ -684,6 +718,7 @@ window.BENCHMARK_DATA = {
           subset: "retail",
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "Retail Pass^1。",
         },
         {
@@ -693,6 +728,7 @@ window.BENCHMARK_DATA = {
           subset: "retail",
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "Retail Pass^1。",
         },
         {
@@ -702,6 +738,7 @@ window.BENCHMARK_DATA = {
           subset: "retail",
           date: "2025-06",
           sourceId: "tau2-paper",
+          locus: "Figure 3",
           notes: "论文：Retail 74% / Airline 56% / Telecom 34%（Pass^1）。",
         },
         {
@@ -711,6 +748,7 @@ window.BENCHMARK_DATA = {
           subset: "telecom",
           date: "2025-06",
           sourceId: "tau2-paper",
+          locus: "Figure 3",
           notes: "论文 Telecom Pass^1 ≈ 49%；Airline 约同等，但 Pass^k 随 k 下降更快。",
         },
       ],
@@ -738,6 +776,7 @@ window.BENCHMARK_DATA = {
           score: 80.3,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "§8.2",
           notes: "System Card §8.2：Mythos 5 80.3%，Fable 5 80%。OpenAI GPT-5.6 博文对照列亦为 Mythos 5 80.3% / Fable 5 80%。",
         },
         {
@@ -746,6 +785,7 @@ window.BENCHMARK_DATA = {
           score: 80.0,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "Table 8.1.A / §8.2",
           notes: "§8.2 与 Table 8.1.A：Fable 5 80%。GPT-5.6 博文对照列为 80%。",
         },
         {
@@ -754,6 +794,7 @@ window.BENCHMARK_DATA = {
           score: 77.8,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "Table 8.1.A",
           notes: "Table 8.1.A。OpenAI GPT-5.6 博文同为 77.8%。",
         },
         {
@@ -762,6 +803,7 @@ window.BENCHMARK_DATA = {
           score: 69.2,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表：Opus 4.8 69.2%。Anthropic Table 8.1.A 同为 69.2%。",
         },
         {
@@ -770,6 +812,7 @@ window.BENCHMARK_DATA = {
           score: 67.7,
           date: "2026-08",
           sourceId: "qwen38-blog",
+          locus: "Coding Agent",
           notes: "Qwen3.8-Max 发布页 Coding Agent 表：67.7%。脚注：problematic tasks corrected，基线在 refined set 上重跑。",
         },
         {
@@ -778,6 +821,7 @@ window.BENCHMARK_DATA = {
           score: 65.7,
           date: "2026-08",
           sourceId: "hy4-hf",
+          locus: "Evaluation results",
           notes: "Hugging Face 模型卡 Evaluation results：ScaleAI/SWE-bench_Pro 65.7。",
         },
         {
@@ -786,6 +830,7 @@ window.BENCHMARK_DATA = {
           score: 64.6,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表：Sol 64.6%；同表 Terra 63.4%、Luna 62.7%、GPT-5.5 59.4%。",
         },
         {
@@ -794,6 +839,7 @@ window.BENCHMARK_DATA = {
           score: 63.4,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表。",
         },
         {
@@ -802,6 +848,7 @@ window.BENCHMARK_DATA = {
           score: 62.7,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表。",
         },
         {
@@ -810,6 +857,7 @@ window.BENCHMARK_DATA = {
           score: 59.4,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6：GPT-5.5 59.4%。Anthropic 表写 58.6%，此处用 OpenAI 本家数字。",
         },
         {
@@ -818,6 +866,7 @@ window.BENCHMARK_DATA = {
           score: 55.6,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Coding",
           notes: "Introducing GPT-5.2：SWE-Bench Pro Public 55.6%；同表 GPT-5.1 Thinking 50.8%。与论文 SWE-Agent 设定不同。",
         },
         {
@@ -826,6 +875,7 @@ window.BENCHMARK_DATA = {
           score: 54.2,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表：Gemini 3.1 Pro Preview 54.2%。Anthropic Table 8.1.A 同为 54.2%。",
         },
         {
@@ -834,6 +884,7 @@ window.BENCHMARK_DATA = {
           score: 52.0,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.4.A",
           notes: "System Card Table 2.4.A：无 thinking 52.0%，64k thinking 51.60%；文中写的是 1,865 题全集，不是 731 公开集。",
         },
         {
@@ -842,7 +893,8 @@ window.BENCHMARK_DATA = {
           score: 50.8,
           date: "2025-12",
           sourceId: "openai-gpt52",
-          notes: "与 GPT-5.2 同表。",
+          locus: "Coding",
+          notes: "与 GPT-5.2 同表。Introducing GPT-5.2 Coding 表：SWE-Bench Pro Public 50.8%。",
         },
         {
           modelId: "claude-opus-4.5",
@@ -850,6 +902,7 @@ window.BENCHMARK_DATA = {
           score: 45.89,
           date: "2026",
           sourceId: "swebench-pro-scale",
+          locus: "Leaderboard",
           notes: "labs.scale.com public leaderboard：claude-opus-4-5-20251101 45.89%±3.60。同页 gpt-5.2 为 29.94%（不同条目/配置）。",
         },
         {
@@ -858,6 +911,7 @@ window.BENCHMARK_DATA = {
           score: 43.6,
           date: "2026",
           sourceId: "swebench-pro-scale",
+          locus: "Leaderboard",
           notes: "claude-4-5-Sonnet 43.60%±3.60。",
         },
         {
@@ -866,6 +920,7 @@ window.BENCHMARK_DATA = {
           score: 23.3,
           date: "2025-09",
           sourceId: "swebench-pro-paper",
+          locus: "Table 1",
           notes: "Table 1：GPT-5 23.3%，Opus 4.1 22.7%，Sonnet 4 17.6%，GPT-4o 4.9%。商业私有集更低（Opus 4.1 17.8%，GPT-5 14.9%）。",
         },
         {
@@ -874,6 +929,7 @@ window.BENCHMARK_DATA = {
           score: 22.7,
           date: "2025-09",
           sourceId: "swebench-pro-paper",
+          locus: "Table 1",
           notes: "Table 1。商业集 17.8%。",
         },
         {
@@ -882,6 +938,7 @@ window.BENCHMARK_DATA = {
           score: 17.6,
           date: "2025-09",
           sourceId: "swebench-pro-paper",
+          locus: "Table 1",
           notes: "Table 1。",
         },
         {
@@ -890,6 +947,7 @@ window.BENCHMARK_DATA = {
           score: 4.9,
           date: "2025-09",
           sourceId: "swebench-pro-paper",
+          locus: "Table 1",
           notes: "Table 1。",
         },
       ],
@@ -909,7 +967,7 @@ window.BENCHMARK_DATA = {
       metric: "Accuracy",
       metricExplain: "短答案与标准答案匹配的题比例。早期数字见 BrowseComp 官方博文；2026 年数字见 GPT-5.6 / GPT-6 Astra 技术报告与 Anthropic Fable 5 System Card。",
       nInstances: 1266,
-      sourceIds: ["browsecomp-openai", "openai-gpt52", "openai-gpt56", "openai-gpt6", "anthropic-fable5-card"],
+      sourceIds: ["browsecomp-openai", "browsecomp-paper", "openai-gpt52", "openai-gpt56", "openai-gpt6", "anthropic-fable5-card"],
       results: [
         {
           modelId: "gpt-5.6-sol",
@@ -917,6 +975,7 @@ window.BENCHMARK_DATA = {
           score: 92.2,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Computer use",
           notes: "Introducing GPT-5.6 Computer use 表：Sol Ultra 92.2%。正文称 BrowseComp SOTA 92.2%；单 agent Sol 为 90.4%。",
         },
         {
@@ -925,15 +984,17 @@ window.BENCHMARK_DATA = {
           score: 91.5,
           date: "2026-09",
           sourceId: "openai-gpt6",
-          notes: "Introducing GPT-6 Astra Professional 表：Astra 91.5%，Sol 90.4%，Fable 5 90.8%，Fable 5.1 87.4%。",
+          locus: "Professional",
+          notes: "Introducing GPT-6 Astra Professional 表：Astra 91.5%，Sol 90.4%，Opus 5 90.8%，Fable 5 87.4%；Fable 5.1 为 —。",
         },
         {
-          modelId: "claude-fable-5",
+          modelId: "claude-opus-5",
           harness: "OpenAI GPT-6 Astra 对照表（含浏览）",
           score: 90.8,
           date: "2026-09",
           sourceId: "openai-gpt6",
-          notes: "GPT-6 Astra 发布页 Professional 表。Anthropic System Card 单 agent Mythos 5 为 88.0%（不同配置）。",
+          locus: "Professional",
+          notes: "GPT-6 Astra Professional 表 Opus 5 列 90.8%。同表 Fable 5 为 87.4%，Fable 5.1 为 —。",
         },
         {
           modelId: "gpt-5.6-sol",
@@ -941,7 +1002,8 @@ window.BENCHMARK_DATA = {
           score: 90.4,
           date: "2026-07",
           sourceId: "openai-gpt56",
-          notes: "GPT-5.6 表 Sol 90.4%；GPT-6 页对照列同为 90.4%。",
+          locus: "Computer use",
+          notes: "GPT-5.6 Computer use 表 Sol 90.4%；GPT-6 页对照列同为 90.4%。",
         },
         {
           modelId: "claude-mythos-5",
@@ -949,6 +1011,7 @@ window.BENCHMARK_DATA = {
           score: 88.0,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "§8.14.2",
           notes: "System Card §8.14.2：单 agent 88.0%；多 agent 93.3%。OpenAI GPT-5.6 表 Mythos 5 亦为 88%。",
         },
         {
@@ -957,6 +1020,7 @@ window.BENCHMARK_DATA = {
           score: 87.9,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Computer use",
           notes: "Introducing GPT-5.6：Mythos Preview 87.9%。Anthropic Table 8.1.A 同。",
         },
         {
@@ -965,15 +1029,17 @@ window.BENCHMARK_DATA = {
           score: 87.5,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Computer use",
           notes: "GPT-5.6 Computer use 表。",
         },
         {
-          modelId: "claude-fable-5.1",
+          modelId: "claude-fable-5",
           harness: "OpenAI GPT-6 Astra 对照表（含浏览）",
           score: 87.4,
           date: "2026-09",
           sourceId: "openai-gpt6",
-          notes: "GPT-6 Astra Professional 表 Fable 5.1 87.4%。",
+          locus: "Professional",
+          notes: "GPT-6 Astra Professional 表 Fable 5 列 87.4%。Anthropic Table 8.1.A 该行 Fable 5 为 —（未报单 agent）。",
         },
         {
           modelId: "gemini-3.1-pro",
@@ -981,6 +1047,7 @@ window.BENCHMARK_DATA = {
           score: 85.9,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Computer use",
           notes: "GPT-5.6 表 85.9%。Anthropic Table 8.1.A 同。",
         },
         {
@@ -989,6 +1056,7 @@ window.BENCHMARK_DATA = {
           score: 84.4,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Computer use",
           notes: "GPT-5.6 表与 Anthropic Table 8.1.A 均为 84.4%。",
         },
         {
@@ -997,6 +1065,7 @@ window.BENCHMARK_DATA = {
           score: 84.3,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Computer use",
           notes: "GPT-5.6 表与 Anthropic Table 8.1.A 单 agent 84.3%；多 agent 88.5%。",
         },
         {
@@ -1005,6 +1074,7 @@ window.BENCHMARK_DATA = {
           score: 83.3,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Computer use",
           notes: "GPT-5.6 Computer use 表。",
         },
         {
@@ -1013,6 +1083,7 @@ window.BENCHMARK_DATA = {
           score: 77.9,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "Introducing GPT-5.2 Tool usage 表：GPT-5.2 Pro 77.9%，Thinking 65.8%，GPT-5.1 Thinking 50.8%。",
         },
         {
@@ -1021,6 +1092,7 @@ window.BENCHMARK_DATA = {
           score: 65.8,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "与 GPT-5.2 Pro 同表。",
         },
         {
@@ -1028,8 +1100,9 @@ window.BENCHMARK_DATA = {
           harness: "OpenAI Deep Research agent",
           score: 51.5,
           date: "2025",
-          sourceId: "browsecomp-openai",
-          notes: "BrowseComp 官方博文/论文：Deep Research 51.5%。",
+          sourceId: "browsecomp-paper",
+          locus: "Table 3",
+          notes: "Wei et al. Table 3：Deep Research 51.5%。官方博文同一张表。",
         },
         {
           modelId: "gpt-5.1-thinking",
@@ -1037,6 +1110,7 @@ window.BENCHMARK_DATA = {
           score: 50.8,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "与 GPT-5.2 同表对照。",
         },
         {
@@ -1044,24 +1118,27 @@ window.BENCHMARK_DATA = {
           harness: "无 browsing；medium reasoning",
           score: 9.9,
           date: "2025",
-          sourceId: "browsecomp-openai",
-          notes: "官方表：o1 9.9%。说明部分题可凭内部知识作答。",
+          sourceId: "browsecomp-paper",
+          locus: "Table 3",
+          notes: "Wei et al. Table 3：o1 9.9%。说明部分题可凭内部知识作答。",
         },
         {
           modelId: "gpt-4o",
           harness: "GPT-4o with browsing",
           score: 1.9,
           date: "2025",
-          sourceId: "browsecomp-openai",
-          notes: "无 browsing 为 0.6%。浏览 alone 不够。",
+          sourceId: "browsecomp-paper",
+          locus: "Table 3",
+          notes: "Wei et al. Table 3：GPT-4o w/ browsing 1.9%。无 browsing 为 0.6%。",
         },
         {
           modelId: "gpt-4o",
           harness: "无 browsing",
           score: 0.6,
           date: "2025",
-          sourceId: "browsecomp-openai",
-          notes: "官方表 GPT-4o 0.6%。",
+          sourceId: "browsecomp-paper",
+          locus: "Table 3",
+          notes: "Wei et al. Table 3：GPT-4o 0.6%。",
         },
       ],
     },
@@ -1088,6 +1165,7 @@ window.BENCHMARK_DATA = {
           score: 62.3,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "§2.12",
           notes: "System Card §2.12 与论文 Table 3：62.3% pass / 78.5% mean coverage。Scale 后期榜 Opus 4.5 high 为 69.8%（全 1000），配置已变。",
         },
         {
@@ -1096,6 +1174,7 @@ window.BENCHMARK_DATA = {
           score: 60.6,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "Introducing GPT-5.2：Scale MCP-Atlas 60.6%；GPT-5.1 Thinking 44.5%。",
         },
         {
@@ -1104,6 +1183,7 @@ window.BENCHMARK_DATA = {
           score: 54.1,
           date: "2026",
           sourceId: "mcp-atlas-paper",
+          locus: "Table 3",
           notes: "论文 Table 3：Gemini 3 Pro 54.1% pass / 73.2% coverage。",
         },
         {
@@ -1112,6 +1192,7 @@ window.BENCHMARK_DATA = {
           score: 44.5,
           date: "2025-12",
           sourceId: "openai-gpt52",
+          locus: "Tool usage",
           notes: "与 GPT-5.2 同表。论文 Table 3 中 GPT-5 亦为 44.5%。",
         },
         {
@@ -1120,6 +1201,7 @@ window.BENCHMARK_DATA = {
           score: 43.8,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.3.A",
           notes: "Table 2.3.A 与论文 Table 3 均为 43.8%。",
         },
         {
@@ -1128,6 +1210,7 @@ window.BENCHMARK_DATA = {
           score: 40.9,
           date: "2025-11",
           sourceId: "opus45-card",
+          locus: "Table 2.3.A",
           notes: "Table 2.3.A / 论文 Table 3。",
         },
         {
@@ -1136,6 +1219,7 @@ window.BENCHMARK_DATA = {
           score: 7.2,
           date: "2026",
           sourceId: "mcp-atlas-paper",
+          locus: "Table 3",
           notes: "论文 Table 3：GPT-4o 7.2%。",
         },
       ],
@@ -1163,6 +1247,7 @@ window.BENCHMARK_DATA = {
           score: 43.8,
           date: "2025-12-18",
           sourceId: "toolathlon-site",
+          locus: "Previous leaderboard",
           notes: "独立评测 ✓：43.8% ± 1.2；Pass@3 50.9；Pass^3 33.3。OpenAI Introducing GPT-5.2 自评为 46.3%，未列入以免与官方独立跑混为同一条。",
         },
         {
@@ -1171,6 +1256,7 @@ window.BENCHMARK_DATA = {
           score: 43.5,
           date: "2025-11-27",
           sourceId: "toolathlon-site",
+          locus: "Previous leaderboard",
           notes: "独立评测 ✓：43.5% ± 0.8。",
         },
         {
@@ -1179,6 +1265,7 @@ window.BENCHMARK_DATA = {
           score: 38.9,
           date: "2025-10-28",
           sourceId: "toolathlon-site",
+          locus: "Previous leaderboard",
           notes: "独立评测 ✓：38.9% ± 3.0。论文写 38.6%，与此为同一代结果。",
         },
         {
@@ -1187,6 +1274,7 @@ window.BENCHMARK_DATA = {
           score: 37.7,
           date: "2025-12-17",
           sourceId: "toolathlon-site",
+          locus: "Previous leaderboard",
           notes: "独立评测 ✓：37.7% ± 1.2。",
         },
         {
@@ -1195,6 +1283,7 @@ window.BENCHMARK_DATA = {
           score: 37.0,
           date: "2025-12-17",
           sourceId: "toolathlon-site",
+          locus: "Previous leaderboard",
           notes: "独立评测 ✓：37.0% ± 2.7。OpenAI 博文自评为 36.1%。",
         },
         {
@@ -1203,6 +1292,7 @@ window.BENCHMARK_DATA = {
           score: 36.4,
           date: "2025-11-22",
           sourceId: "toolathlon-site",
+          locus: "Previous leaderboard",
           notes: "独立评测 ✓：36.4% ± 0.4。",
         },
       ],
@@ -1230,6 +1320,7 @@ window.BENCHMARK_DATA = {
           score: 91.9,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6：Sol Ultra 91.9%；单 agent Sol 88.8%。",
         },
         {
@@ -1238,6 +1329,7 @@ window.BENCHMARK_DATA = {
           score: 90.6,
           date: "2026-09",
           sourceId: "deepseek-v41-hf",
+          locus: "Instruct",
           notes: "Hugging Face 技术报告 instruct 表：90.6%。同文 mini-SWE 90.3%，Claude Code 88.0%。对照列 GPT-5.6 Sol 88.8% 与 OpenAI 本家一致。",
         },
         {
@@ -1246,6 +1338,7 @@ window.BENCHMARK_DATA = {
           score: 88.8,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表。DeepSeek / GLM / Qwen 对照列均引用 88.8%。",
         },
         {
@@ -1254,6 +1347,7 @@ window.BENCHMARK_DATA = {
           score: 88.3,
           date: "2026-07",
           sourceId: "kimi-k3-blog",
+          locus: "脚注 2",
           notes: "Kimi K3 技术博客脚注 2：K3 用 Kimi Code。GLM-5.3 发布表对照列亦为 K3 88.3%。",
         },
         {
@@ -1262,6 +1356,7 @@ window.BENCHMARK_DATA = {
           score: 88.2,
           date: "2026",
           sourceId: "glm-53-blog",
+          locus: "Coding",
           notes: "Z.AI GLM-5.3 发布页 Coding 表：88.2%。智谱文档同步写 Terminal-Bench 3.0 从 4.6 升至 28.3，与 2.1 此行不是同一套题。",
         },
         {
@@ -1270,6 +1365,7 @@ window.BENCHMARK_DATA = {
           score: 88.0,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "§8.3",
           notes: "System Card §8.3：88% mean reward（445 trials）。OpenAI GPT-5.6 表 Mythos 5 亦为 88%。",
         },
         {
@@ -1278,6 +1374,7 @@ window.BENCHMARK_DATA = {
           score: 87.9,
           date: "2026-09",
           sourceId: "deepseek-v41-hf",
+          locus: "Instruct",
           notes: "V4.1-Flash 报告 instruct 表 DS-V4-Pro 87.9%。GLM-5.3 表写 DeepSeek-V4 Pro-0813 87.9%。",
         },
         {
@@ -1286,6 +1383,7 @@ window.BENCHMARK_DATA = {
           score: 87.4,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表。",
         },
         {
@@ -1294,6 +1392,7 @@ window.BENCHMARK_DATA = {
           score: 86.6,
           date: "2026-08",
           sourceId: "qwen38-blog",
+          locus: "Coding Agent",
           notes: "Qwen3.8-Max 发布页。脚注：其余模型取各 harness 已公布最好分，不可与 Qwen 自己的 Claude Code avg@10 直接当同条件。",
         },
         {
@@ -1302,6 +1401,7 @@ window.BENCHMARK_DATA = {
           score: 85.6,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "GPT-5.6 表 85.6%。官方独立榜 Codex + GPT-5.5 xhigh 为 83.1% ± 1.1%（tbench.ai）。",
         },
         {
@@ -1310,6 +1410,7 @@ window.BENCHMARK_DATA = {
           score: 84.7,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表。",
         },
         {
@@ -1318,6 +1419,7 @@ window.BENCHMARK_DATA = {
           score: 84.3,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "§8.3",
           notes: "System Card §8.3。官方独立榜 Claude Code + Fable 5 xhigh 为 83.8% ± 1.2%（2026-06-07）。OpenAI GPT-5.6 表写 83.1%。",
         },
         {
@@ -1326,6 +1428,7 @@ window.BENCHMARK_DATA = {
           score: 83.8,
           date: "2026-06-07",
           sourceId: "tbench-21-board",
+          locus: "Leaderboard",
           notes: "tbench.ai terminal-bench@2.1：83.8% ± 1.2%。",
         },
         {
@@ -1334,6 +1437,7 @@ window.BENCHMARK_DATA = {
           score: 82.7,
           date: "2026-06",
           sourceId: "anthropic-fable5-card",
+          locus: "§8.3",
           notes: "System Card §8.3：82.7%。官方独立榜 Claude Code + Opus 4.8 high 为 78.9% ± 1.3%（2026-07-09）。",
         },
         {
@@ -1342,6 +1446,7 @@ window.BENCHMARK_DATA = {
           score: 82.7,
           date: "2026-09",
           sourceId: "deepseek-v41-hf",
+          locus: "Instruct",
           notes: "V4.1-Flash 报告 instruct 表 DS-V4-Flash 82.7%。",
         },
         {
@@ -1350,6 +1455,7 @@ window.BENCHMARK_DATA = {
           score: 70.7,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "GPT-5.6 表 Gemini 3.1 Pro Preview 70.7%。2.1 公告里 Terminus 2 + Gemini 3.1 Pro 从 2.0 的 63.0% 升至 70.7%。",
         },
       ],
@@ -1377,6 +1483,7 @@ window.BENCHMARK_DATA = {
           score: 57.9,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Coding",
           notes: "Introducing GPT-6 Astra Coding 表：57.9%。正文亦写 57.9%，对照 Sol 37.3%、Fable 5.1 55.8%。",
         },
         {
@@ -1385,6 +1492,7 @@ window.BENCHMARK_DATA = {
           score: 55.8,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Coding",
           notes: "GPT-6 Astra Coding 表。",
         },
         {
@@ -1393,6 +1501,7 @@ window.BENCHMARK_DATA = {
           score: 52.6,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Coding",
           notes: "GPT-6 Astra Coding 表 52.6%。DeepSeek V4.1 表写 Opus-5.0 51.8%（不同 harness）。",
         },
         {
@@ -1401,6 +1510,7 @@ window.BENCHMARK_DATA = {
           score: 44.5,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Coding",
           notes: "GPT-6 Astra Coding 表。",
         },
         {
@@ -1409,6 +1519,7 @@ window.BENCHMARK_DATA = {
           score: 37.3,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Coding",
           notes: "GPT-6 页 37.3%。DeepSeek V4.1 表写 Sol 39.9%，此处用 OpenAI 本家数字。",
         },
         {
@@ -1417,6 +1528,7 @@ window.BENCHMARK_DATA = {
           score: 31.2,
           date: "2026-09",
           sourceId: "deepseek-v41-hf",
+          locus: "Instruct",
           notes: "Hugging Face instruct 表 Terminal-Bench 4.0 Pass@1 31.2%。同表 3.0 为 30.0%。报告写科学向 TB4 仍落后巨型闭源模型。",
         },
         {
@@ -1425,6 +1537,7 @@ window.BENCHMARK_DATA = {
           score: 19.1,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Coding",
           notes: "GPT-6 Astra Coding 表。",
         },
       ],
@@ -1452,6 +1565,7 @@ window.BENCHMARK_DATA = {
           score: 74.2,
           date: "2026-09",
           sourceId: "deepseek-v41-hf",
+          locus: "Instruct",
           notes: "Hugging Face instruct 表 74.2% Resolved。同文 scaffold 表：mini-SWE 74.2，DSH Minimal 72.6，Claude Code 69.8。",
         },
         {
@@ -1460,6 +1574,7 @@ window.BENCHMARK_DATA = {
           score: 74.1,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Coding",
           notes: "Introducing GPT-6 Astra：74.1%。官方独立榜 gpt-6-astra [xhigh] 为 74% ± 3%（2026-09-03）。",
         },
         {
@@ -1468,6 +1583,7 @@ window.BENCHMARK_DATA = {
           score: 74.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "deepswe.datacurve.ai v1.1：claude-opus-5 [max] 74% ± 4%。GPT-6 页写 73.7%；DeepSeek 表写 Opus-5.0 74.0%。",
         },
         {
@@ -1476,6 +1592,7 @@ window.BENCHMARK_DATA = {
           score: 74.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 gemini-3.8-flash [high] 74% ± 1%。GPT-6 页写 73.8%。",
         },
         {
@@ -1484,6 +1601,7 @@ window.BENCHMARK_DATA = {
           score: 72.7,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6：72.7%。官方榜 gpt-5.6-sol [max] 73% ± 3%。GPT-6 页对照列同为 72.7%。",
         },
         {
@@ -1492,6 +1610,7 @@ window.BENCHMARK_DATA = {
           score: 70.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 70% ± 3%。GPT-6 页写 69.9%；GPT-5.6 页写 69.7%。部分 trial 因出口管制中断，官方按已完成 trial 计。",
         },
         {
@@ -1500,6 +1619,7 @@ window.BENCHMARK_DATA = {
           score: 69.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 69% ± 3%。Z.AI 发布页自评 66.9%（mini-swe-agent，timeout=6h，400K 上下文）。",
         },
         {
@@ -1508,6 +1628,7 @@ window.BENCHMARK_DATA = {
           score: 69.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 69% ± 5%。Kimi 博客：官方 mini-SWE 为 67.3，Kimi Code harness 另报 67.5。",
         },
         {
@@ -1516,6 +1637,7 @@ window.BENCHMARK_DATA = {
           score: 69.6,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "Introducing GPT-5.6 Coding 表。",
         },
         {
@@ -1524,6 +1646,7 @@ window.BENCHMARK_DATA = {
           score: 67.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 grok-4.6 [medium] 67% ± 2%。",
         },
         {
@@ -1532,6 +1655,7 @@ window.BENCHMARK_DATA = {
           score: 67.2,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "GPT-5.6 表 67.2%。官方榜 gpt-5.6-luna [max] 67% ± 4%。",
         },
         {
@@ -1540,6 +1664,7 @@ window.BENCHMARK_DATA = {
           score: 67.0,
           date: "2026-07",
           sourceId: "openai-gpt56",
+          locus: "Coding",
           notes: "GPT-5.6 表 67%。官方榜 gpt-5.5 [xhigh] 67% ± 6%。",
         },
         {
@@ -1548,6 +1673,7 @@ window.BENCHMARK_DATA = {
           score: 64.3,
           date: "2026-08",
           sourceId: "hy4-hf",
+          locus: "Evaluation results",
           notes: "Hugging Face Evaluation results：datacurve/deep-swe 64.3。与官方独立榜 top 行不是同一 harness 快照。",
         },
         {
@@ -1556,6 +1682,7 @@ window.BENCHMARK_DATA = {
           score: 63.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 63% ± 6%。DeepSeek V4.1 报告写 DS-V4-Pro 62.7%。",
         },
         {
@@ -1564,6 +1691,7 @@ window.BENCHMARK_DATA = {
           score: 59.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 59% ± 2%。GPT-5.6 表同为 59%。",
         },
         {
@@ -1572,6 +1700,7 @@ window.BENCHMARK_DATA = {
           score: 57.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 57% ± 3%。Qwen 发布页写 56.6%（取 Claude Code 与 mini-SWE 中较高者，Qwen 称自己在 Claude Code 上更好）。",
         },
         {
@@ -1580,6 +1709,7 @@ window.BENCHMARK_DATA = {
           score: 53.0,
           date: "2026-09",
           sourceId: "deepswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 53% ± 4%。V4.1 报告写 DS-V4-Flash 54.4%。",
         },
       ],
@@ -1603,11 +1733,12 @@ window.BENCHMARK_DATA = {
       results: [
         {
           modelId: "gpt-6-astra",
-          harness: "OpenAI 自评；effort 取最高",
+          harness: "Snorkel 独立榜；Codex；Max",
           score: 59.3,
           date: "2026-09",
-          sourceId: "openai-gpt6",
-          notes: "Introducing GPT-6 Astra：59.3%，对照 Opus 5 55.5%、Sol 53.6%、Fable 5 48.7%。与 Snorkel Score 口径一致。",
+          sourceId: "ale-snorkel",
+          locus: "Leaderboard",
+          notes: "snorkel.ai ALE leaderboard：Score 59.3%，Pass Rate 34.2%。OpenAI GPT-6 页同为 59.3%。",
         },
         {
           modelId: "claude-opus-5",
@@ -1615,6 +1746,7 @@ window.BENCHMARK_DATA = {
           score: 55.2,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "snorkel.ai ALE leaderboard：Score 55.2%，Pass Rate 31.6%。GPT-6 页写 55.5%。",
         },
         {
@@ -1623,6 +1755,7 @@ window.BENCHMARK_DATA = {
           score: 53.6,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel Score 53.6%，Pass Rate 30.6%。GPT-5.6 正文与 GPT-6 对照列均为 53.6%；GPT-5.6 表另有 52.7%。",
         },
         {
@@ -1631,6 +1764,7 @@ window.BENCHMARK_DATA = {
           score: 52.5,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel：Score 52.5%，Pass Rate 27.0%。",
         },
         {
@@ -1639,6 +1773,7 @@ window.BENCHMARK_DATA = {
           score: 51.6,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel：Score 51.6%，Pass Rate 28.3%。Claude Code + K3 为 Score 50.7% / Pass 27%。",
         },
         {
@@ -1647,6 +1782,7 @@ window.BENCHMARK_DATA = {
           score: 50.7,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel Score 50.7%，Pass Rate 28%。GPT-5.6 表写 50.4%。",
         },
         {
@@ -1655,6 +1791,7 @@ window.BENCHMARK_DATA = {
           score: 49.4,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel Score 49.4%，Pass Rate 30.3%。GPT-5.6 表写 50.3%。",
         },
         {
@@ -1663,6 +1800,7 @@ window.BENCHMARK_DATA = {
           score: 48.7,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel Score 48.7%，Pass Rate 25.7%。GPT-6 页对照列同为 48.7%。",
         },
         {
@@ -1671,6 +1809,7 @@ window.BENCHMARK_DATA = {
           score: 47.9,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel Score 47.9%，Pass Rate 26.6%。GPT-5.6 表写 46.9%。",
         },
         {
@@ -1679,6 +1818,7 @@ window.BENCHMARK_DATA = {
           score: 45.1,
           date: "2026",
           sourceId: "ale-snorkel",
+          locus: "Leaderboard",
           notes: "Snorkel Score 45.1%，Pass Rate 27%。GPT-5.6 表写 45.2%。",
         },
       ],
@@ -1706,6 +1846,7 @@ window.BENCHMARK_DATA = {
           score: 56.3,
           date: "2026-09",
           sourceId: "frontierswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 56.3% ±11.1。博客 56.29%。* 内容过滤挡住的任务以 Opus 5 回退。",
         },
         {
@@ -1714,6 +1855,7 @@ window.BENCHMARK_DATA = {
           score: 32.2,
           date: "2026-09",
           sourceId: "frontierswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 GPT-5.6 32.2% ±11.0。博客视频写 GPT-5.6 Sol。",
         },
         {
@@ -1722,6 +1864,7 @@ window.BENCHMARK_DATA = {
           score: 30.2,
           date: "2026-09",
           sourceId: "frontierswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 30.2% ±11.5。",
         },
         {
@@ -1730,6 +1873,7 @@ window.BENCHMARK_DATA = {
           score: 25.9,
           date: "2026-09",
           sourceId: "frontierswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 25.9% ±11.8。",
         },
         {
@@ -1738,6 +1882,7 @@ window.BENCHMARK_DATA = {
           score: 25.3,
           date: "2026-09",
           sourceId: "frontierswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 25.3% ±12.2。",
         },
         {
@@ -1746,6 +1891,7 @@ window.BENCHMARK_DATA = {
           score: 20.3,
           date: "2026-09",
           sourceId: "frontierswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 20.3% ±10.5。",
         },
         {
@@ -1754,6 +1900,7 @@ window.BENCHMARK_DATA = {
           score: 15.8,
           date: "2026-09",
           sourceId: "frontierswe-site",
+          locus: "Leaderboard",
           notes: "官方榜 15.8% ±7.8。",
         },
       ],
@@ -1781,6 +1928,7 @@ window.BENCHMARK_DATA = {
           score: 41.4,
           date: "2026-09",
           sourceId: "automationbench-zapier",
+          locus: "Leaderboard",
           notes: "官方榜 GPT 6 Astra (Max) 41.4%。OpenAI GPT-6 页对照列同为 41.4%。",
         },
         {
@@ -1789,6 +1937,7 @@ window.BENCHMARK_DATA = {
           score: 31.4,
           date: "2026-09",
           sourceId: "automationbench-zapier",
+          locus: "Leaderboard",
           notes: "Fable 5.1 安全分类器拒绝时由 Opus 5 完成该步。Opus 5 处理约 40% 任务（260/657）；31.4% 含回退。",
         },
         {
@@ -1797,6 +1946,7 @@ window.BENCHMARK_DATA = {
           score: 30.44,
           date: "2026-09",
           sourceId: "automationbench-zapier",
+          locus: "Leaderboard",
           notes: "官方榜 Gemini 3.7 Flash (High) 30.44%。",
         },
         {
@@ -1805,6 +1955,7 @@ window.BENCHMARK_DATA = {
           score: 29.68,
           date: "2026-09",
           sourceId: "automationbench-zapier",
+          locus: "Leaderboard",
           notes: "官方榜 Medium 与 High 均为 29.68%。",
         },
         {
@@ -1813,6 +1964,7 @@ window.BENCHMARK_DATA = {
           score: 28.77,
           date: "2026-09",
           sourceId: "automationbench-zapier",
+          locus: "Leaderboard",
           notes: "官方榜 GPT-5.6 Sol (Max) 28.77%。OpenAI GPT-6 页对照列 18.1%，条件不同，未并入此行。",
         },
         {
@@ -1821,6 +1973,7 @@ window.BENCHMARK_DATA = {
           score: 26.9,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Professional",
           notes: "GPT-6 Astra 页 Professional 表 AutomationBench 列。未出现在 Zapier 1.0.6 公开榜前十。",
         },
         {
@@ -1829,6 +1982,7 @@ window.BENCHMARK_DATA = {
           score: 17.4,
           date: "2026-09",
           sourceId: "openai-gpt6",
+          locus: "Professional",
           notes: "GPT-6 Astra 页 Professional 表 AutomationBench 列。未出现在 Zapier 1.0.6 公开榜前十。",
         },
       ],
